@@ -1,5 +1,3 @@
-/// https://github.com/WebAssembly/design/blob/master/BinaryEncoding.md
-/// https://webassembly.github.io/spec/core/_download/WebAssembly.pdf
 use std::fs::File;
 use std::io;
 use std::io::{BufReader, Read};
@@ -48,7 +46,7 @@ impl<R: Read> Decoder<R> {
 
     // decode leb 128 unsigned int
     // https://en.wikipedia.org/wiki/LEB128
-    pub fn unsigned_leb_128(&mut self) -> DecodeResult<u32> {
+    pub fn varunint32(&mut self) -> DecodeResult<u32> {
         let mut result = 0;
         let mut shift = 0;
         loop {
@@ -67,7 +65,7 @@ impl<R: Read> Decoder<R> {
     where
         F: Fn(&mut Decoder<R>) -> DecodeResult<T>,
     {
-        let length = self.unsigned_leb_128()?;
+        let length = self.varunint32()?;
         let mut vec = Vec::with_capacity(length as usize);
         for _ in 0..length {
             vec.push(read_function(self)?);
@@ -76,7 +74,7 @@ impl<R: Read> Decoder<R> {
     }
 
     pub fn index(&mut self) -> DecodeResult<Index> {
-        self.unsigned_leb_128()
+        self.varunint32()
     }
 
     pub fn decode<T, F>(&mut self, function: F) -> DecodeResult<T>

@@ -45,7 +45,7 @@ impl Module {
         loop {
             match decoder.byte() {
                 Ok(id) => {
-                    let size = decoder.unsigned_leb_128()?;
+                    let size = decoder.varunint32()?;
                     match id {
                         1 => Section::Type(TypeSection::decode(decoder)?),
                         2 => panic!("2"),
