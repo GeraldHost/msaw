@@ -1,6 +1,6 @@
-use crate::decoder::{DecodeError, DecodeResult, Decoder};
-use crate::types::Index;
 use std::io::Read;
+use crate::types::Index;
+use crate::decoder::{DecodeError, DecodeResult, Decoder};
 
 #[derive(Debug)]
 pub enum ExportDesc {
