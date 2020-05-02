@@ -77,6 +77,16 @@ impl<R: Read> Decoder<R> {
         self.varunint32()
     }
 
+    pub fn valtype(&mut self) -> DecodeResult<Values> {
+        match self.byte()? {
+            0x7F => Ok(Values::Int(Int::I32)),
+            0x7E => Ok(Values::Int(Int::I64)),
+            0x7D => Ok(Values::Float(Float::F32)),
+            0x7C => Ok(Values::Float(Float::F64)),
+            _ => Err(DecodeError::Error),
+        }
+    }
+
     pub fn decode<T, F>(&mut self, function: F) -> DecodeResult<T>
     where
         F: Fn(&mut Decoder<R>) -> DecodeResult<T>,
