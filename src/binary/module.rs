@@ -6,6 +6,7 @@ use crate::types::Index;
 use crate::exportsection::ExportSection;
 use crate::functionsection::FunctionSection;
 use crate::typesection::TypeSection;
+use crate::codesection::CodeSection;
 
 const WASM_MAGIC: u32 = 0x6d736100;
 const WASM_VERSION: u32 = 1;
@@ -16,6 +17,7 @@ pub enum Section {
     Type(TypeSection),
     Function(FunctionSection),
     Export(ExportSection),
+    Code(CodeSection),
 }
 
 pub struct Module {
@@ -56,7 +58,7 @@ impl Module {
                         7 => Section::Export(ExportSection::decode(decoder)?),
                         8 => panic!("8"),
                         9 => panic!("9"),
-                        10 => panic!("10"),
+                        10 => Section::Code(CodeSection::decode(decoder)?), 
                         11 => panic!("11"),
                         _ => return Err(DecodeError::Error),
                     }

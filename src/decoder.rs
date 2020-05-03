@@ -1,18 +1,16 @@
-use std::fs::File;
-use std::io;
-use std::io::{BufReader, Read};
+use std::io::{Error, BufReader, Read};
 
-use crate::types::Index;
+use crate::types::*;
 
 pub type DecodeResult<T> = Result<T, DecodeError>;
 
 pub enum DecodeError {
-    Io(io::Error),
+    Io(Error),
     Error,
 }
 
-impl From<io::Error> for DecodeError {
-    fn from(e: io::Error) -> Self {
+impl From<Error> for DecodeError {
+    fn from(e: Error) -> Self {
         DecodeError::Io(e)
     }
 }
@@ -78,13 +76,15 @@ impl<R: Read> Decoder<R> {
     }
 
     pub fn valtype(&mut self) -> DecodeResult<Values> {
-        match self.byte()? {
-            0x7F => Ok(Values::Int(Int::I32)),
-            0x7E => Ok(Values::Int(Int::I64)),
-            0x7D => Ok(Values::Float(Float::F32)),
-            0x7C => Ok(Values::Float(Float::F64)),
-            _ => Err(DecodeError::Error),
-        }
+        decoder_valtype(self.byte()?)
+    }
+
+    pub fn blocktype(&mut self) -> DecodeResult<Vec<Values>> {
+       let vec = match self.byte()? {
+            0x40 => vec![],
+            byte => vec![decoder_valtype(byte)?]
+       }; 
+       Ok(vec)
     }
 
     pub fn decode<T, F>(&mut self, function: F) -> DecodeResult<T>
@@ -94,3 +94,13 @@ impl<R: Read> Decoder<R> {
         function(self)
     }
 }
+
+fn decoder_valtype(value: u8) -> DecodeResult<Values> {
+    match value {
+        0x7F => Ok(Values::Int(Int::I32)),
+        0x7E => Ok(Values::Int(Int::I64)),
+        0x7D => Ok(Values::Float(Float::F32)),
+        0x7C => Ok(Values::Float(Float::F64)),
+        _ => Err(DecodeError::Error),
+    }
+} 
