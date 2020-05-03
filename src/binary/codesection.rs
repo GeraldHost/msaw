@@ -1,4 +1,5 @@
 use std::io::Read;
+use crate::instructions::{Instructions, Instruction};
 use crate::decoder::{DecodeError, DecodeResult, Decoder};
 use crate::types::*;
 
@@ -6,7 +7,7 @@ type Local = (u32, Values);
 
 struct Code {
     locals: Vec<Local>,
-    body: u32,
+    body: Vec<Instruction>,
 }
 
 pub struct CodeSection(Vec<Code>);
@@ -32,17 +33,8 @@ impl CodeSection {
 
   // read code section
   // read instructions
-  fn body<R: Read>(decoder: &mut Decoder<R>) -> DecodeResult<u32> {
-    loop {
-        match decoder.byte()? {
-            0x0b => {
-                panic!("lame");
-                return Ok(1);
-            },
-            b => println!("{:?}", format!("{:x}", b)),
-        }
-    }
-    Ok(0)
+  fn body<R: Read>(decoder: &mut Decoder<R>) -> DecodeResult<Vec<Instruction>> {
+    Ok(decoder.decode(Instructions::decode)?) 
   }
 
   pub fn decode<R: Read>(decoder: &mut Decoder<R>) -> DecodeResult<Self> {

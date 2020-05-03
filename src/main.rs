@@ -1,6 +1,7 @@
 mod binary;
 mod decoder;
 mod types;
+mod instructions;
 
 use binary::module::Module;
 use binary::*;
@@ -18,6 +19,6 @@ fn main() {
     let mut decoder = Decoder::new(reader);
     match Module::decode(&mut decoder) {
         Ok(_) => println!("ok"),
-        Err(error) => panic!("oh dear"),
+        Err(error) => panic!(error),
     };
 }

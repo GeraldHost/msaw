@@ -1,24 +1,49 @@
 use std::io::Read;
-use crate::decoder::{Decoder, DecodeResult};
+use crate::decoder::{Decoder, DecodeResult, DecodeError};
 
 pub struct Instructions(Vec<Instruction>);
 
 impl Instructions {
-    fn decode<R: Read>(decoder: Decoder<R>) -> DecodeResult<Instruction> {
-        let op = match decoder.byte()? {
-            0x00 => Unreachable,
-            0x01 => Nop,
-            0x02 => {
-                let block_type = decoder.blocktype()?,
-                let instruction = decoder.intruction_block()?,
-                Block(block_type, instruction)
-            },
-            0x03 => Loop(_),
-            0x04 => If(_),
-
+    pub fn decode<R: Read>(decoder: &mut Decoder<R>) -> DecodeResult<Vec<Instruction>> {
+        use self::Instruction::*;
+        let mut vec = Vec::new();
+        // lets start by decoding just the op codes required for the add.wasm
+        // file. Just as an initial POC.
+        loop {
+            let op = match decoder.byte()? {
+                0x00 => Unreachable,
+                0x01 => Nop,
+                0x20 => GetLocal(decoder.index()?),
+                0x6a => I32Add,
+                0x0b => return Ok(vec),
+                _ => return Err(DecodeError::Error),
+            };
+            vec.push(op);
         }
-        Ok(op)
     }
+}
+
+pub enum ValueType {
+	/// 32-bit signed integer
+	I32,
+	/// 64-bit signed integer
+	I64,
+	/// 32-bit float
+	F32,
+	/// 64-bit float
+	F64,
+}
+
+pub enum BlockType {
+	/// Value-type specified block type
+	Value(ValueType),
+	/// No specified block type
+	NoResult,
+}
+
+pub struct BrTableData {
+	pub table: Box<[u32]>,
+	pub default: u32,
 }
 
 pub enum Instruction {
