@@ -45,8 +45,10 @@ impl Module {
     }
 
     fn sections<R: Read>(decoder: &mut Decoder<R>) -> DecodeResult<Vec<Section>> {
+        let mut sections = Vec::new();
+
         loop {
-            match decoder.byte() {
+            let section = match decoder.byte() {
                 Err(DecodeError::Io(ref e)) if e.kind() == io::ErrorKind::UnexpectedEof => break,
                 Ok(id) => {
                     let size = decoder.varunint32()?;
@@ -67,8 +69,9 @@ impl Module {
                 }
                 Err(error) => return Err(DecodeError::Error),
             };
+            sections.push(section);
         }
-        Ok(vec![])
+        Ok(sections)
     }
 
     pub fn decode<R: Read>(decoder: &mut Decoder<R>) -> DecodeResult<Module> {

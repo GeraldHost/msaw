@@ -17,8 +17,7 @@ fn main() {
     let reader = BufReader::new(wasm);
 
     let mut decoder = Decoder::new(reader);
-    match Module::decode(&mut decoder) {
-        Ok(_) => println!("ok"),
-        Err(error) => panic!(error),
+    if let Ok(module) = Module::decode(&mut decoder) {
+        println!("{:?}", "Module decoded successfully");
     };
 }
