@@ -23,7 +23,7 @@ pub enum Section {
 
 pub struct Module {
     pub header: ModuleHeader,
-    sections: Vec<Section>,
+    pub sections: Vec<Section>,
 }
 
 impl Module {

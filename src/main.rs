@@ -4,7 +4,9 @@ mod types;
 mod instructions;
 
 use binary::module::Module;
+use binary::module::Section;
 use binary::*;
+use binary::exportsection::ExportSection;
 use decoder::Decoder;
 
 use std::fs::File;
@@ -19,5 +21,11 @@ fn main() {
     let mut decoder = Decoder::new(reader);
     if let Ok(module) = Module::decode(&mut decoder) {
         println!("{:?}", "Module decoded successfully");
+        for section in module.sections {
+            if let Section::Export(exportsection) = section {
+                let ExportSection(exports) = exportsection;
+                println!("First export name {}", exports[0].name);
+            }
+        }
     };
 }

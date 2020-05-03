@@ -16,7 +16,7 @@ pub struct Export {
     pub description: ExportDesc,
 }
 
-pub struct ExportSection(Vec<Export>);
+pub struct ExportSection(pub Vec<Export>);
 
 impl ExportSection {
     /// https://webassembly.github.io/spec/core/binary/values.html#binary-name
