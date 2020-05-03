@@ -1,3 +1,4 @@
+use std::io;
 use std::io::Read;
 
 use crate::decoder::{DecodeError, DecodeResult, Decoder};
@@ -46,6 +47,7 @@ impl Module {
     fn sections<R: Read>(decoder: &mut Decoder<R>) -> DecodeResult<Vec<Section>> {
         loop {
             match decoder.byte() {
+                Err(DecodeError::Io(ref e)) if e.kind() == io::ErrorKind::UnexpectedEof => break,
                 Ok(id) => {
                     let size = decoder.varunint32()?;
                     match id {
